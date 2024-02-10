@@ -1,44 +1,102 @@
+import traceback
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
-from src.tasks.task_extrabom import TaskExtrabom
-from src.tasks.task_perim import TaskPerim
+from src.site_extrabom import SiteExtrabom
+from src.site_perim import SitePerim
+from utils.produtos import exibir_produto
+from loguru import logger
+
+
+def __exibir_dados_produto(dados_produto: dict) -> None:
+        """
+        ----
+        Método privato responsável por exibir os dados do produto.
+
+        ----
+        Args:
+            dict: {
+                'titulo': 'Titulo do produto exibido pelo site',
+                'valor': 15.5
+                'link': 'https://www.teste.com.br'
+            }
+
+        ----
+        Returns:
+            None
+        """
+        logger.success(f'---- Dados do produto {dados_produto["titulo"]} ----')
+        logger.info(f'Titulo do produto: {dados_produto["titulo"]}')
+        logger.info(f'Valor do produto: {dados_produto["valor"]}')
+        logger.info(f'Link do produto: {dados_produto["link"]}\n')
+
+def exibe_produtos_perim(lista_produtos: list) -> None:
+
+    site_perim = SitePerim(
+        driver=driver
+    )
+
+    site_perim.abre_tela_inicial()
+
+    for produto in lista_produtos:
+
+        try:
+            produto_perim = site_perim.buscar_produto(
+                produto=produto
+            )
+            produtos_encontrados.append(produto_perim)
+
+        except Exception as error:
+            logger.error(traceback.format_exc())
+
+
+
+def exibe_produtos_extrabom(lista_produtos: list) -> None:
+
+    site_extrabom = SiteExtrabom(
+        driver=driver
+    )
+
+    site_extrabom.abre_tela_inicial()
+
+    for produto in lista_produtos:
+
+        try:
+            produto_extrabom = site_extrabom.buscar_produto(
+                produto=produto
+            )
+            produtos_encontrados.append(produto_extrabom)
+        
+        except Exception as error:
+            logger.error(traceback.format_exc())
+
+    return 
 
 def main():
 
-    # Optios do Driver 
     options = Options()
     options.add_experimental_option('excludeSwitches', ['enable-logging', 'enable-automation'])
     # options.add_argument('--headless')
-
-
-    # Instância do Driver
     driver = webdriver.Chrome(options=options)
+    driver.set_window_size(width=1920,height=1080)
 
-
-    # Lista de produtos que serão iterados
-    lista_produtos = [
+    lista_produtos: list[str] = [
         'Arroz',
         'Feijão',
         'Orégano',
         'Leite'
     ]
 
+    produtos_encontrados = []
+    
+    dados_produtos_perim = 
+    
 
-    # Task do mercado Extrabom
-    task_extrabom = TaskExtrabom(
-        driver=driver,
-        lista_produtos=lista_produtos
-    )
-    task_extrabom.main()
+    for produto in produtos_encontrados:
+        exibir_produto(
+            dados_produto=produto
+        )
 
-
-    # Task do mercado Perim
-    task_perim = TaskPerim(
-        driver=driver,
-        lista_produtos=lista_produtos
-    )
-    task_perim.main()
-
+    
 
 if __name__ == '__main__':
     main()
