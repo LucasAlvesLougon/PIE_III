@@ -3,14 +3,14 @@ from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
 from src.site_extrabom import SiteExtrabom
 from src.site_perim import SitePerim
-from utils.produtos import exibir_produto
+from utils.produtos import registra_produtos
 from loguru import logger
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 
-driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
+# driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
 
 def __exibir_dados_produto(dados_produto: dict) -> None:
         """
@@ -34,7 +34,7 @@ def __exibir_dados_produto(dados_produto: dict) -> None:
         logger.info(f'Valor do produto: {dados_produto["valor"]}')
         logger.info(f'Link do produto: {dados_produto["link"]}\n')
 
-def exibe_produtos_perim(driver: webdriver.Chrome, lista_produtos: list) -> None:
+def exibe_produtos_perim(driver: webdriver.Chrome, lista_produtos: list) -> list:
 
     site_perim = SitePerim(
         driver=driver
@@ -54,7 +54,9 @@ def exibe_produtos_perim(driver: webdriver.Chrome, lista_produtos: list) -> None
         except Exception as error:
             logger.error(traceback.format_exc())
 
-def exibe_produtos_extrabom(driver: webdriver.Chrome, lista_produtos: list) -> None:
+    return produtos_encontrados
+
+def exibe_produtos_extrabom(driver: webdriver.Chrome, lista_produtos: list) -> list:
 
     site_extrabom = SiteExtrabom(
         driver=driver
@@ -74,7 +76,7 @@ def exibe_produtos_extrabom(driver: webdriver.Chrome, lista_produtos: list) -> N
         except Exception as error:
             logger.error(traceback.format_exc())
 
-    return 
+    return produtos_encontrados
 
 def main():
 
@@ -82,8 +84,10 @@ def main():
     # options.add_experimental_option('excludeSwitches', ['enable-logging', 'enable-automation'])
     # options.add_argument('--headless')
     driver = webdriver.Chrome()
-    driver.set_window_size(width=1920,height=1080)
+    driver.maximize_window()
+    # driver.set_window_size(width=1920,height=1080)
 
+    produtos_encontrados = []
     lista_produtos = [
         'Arroz',
         'Feijão',
@@ -91,20 +95,23 @@ def main():
         'Leite'
     ]
 
-    exibe_produtos_perim(
+    produtos_perim = exibe_produtos_perim(
         driver=driver,
         lista_produtos=lista_produtos
     )
+    produtos_encontrados.append(produtos_perim)
 
-    produtos_encontrados = []
-    
-    # dados_produtos_perim = 
-    
+    produtos_extrabom = exibe_produtos_extrabom(
+        driver=driver,
+        lista_produtos=lista_produtos
+    )
+    produtos_encontrados.append(produtos_extrabom)
 
     for produto in produtos_encontrados:
-        exibir_produto(
+        registra_produtos(
             dados_produto=produto
         )
+
 
 if __name__ == '__main__':
     main()

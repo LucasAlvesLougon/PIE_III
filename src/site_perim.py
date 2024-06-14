@@ -64,26 +64,26 @@ class SitePerim():
 
         try:
 
-            campo_busca = WebDriverWait(self.driver, 10).until(
+            campo_busca = WebDriverWait(self.driver, 15).until(
                 EC.element_to_be_clickable((By.XPATH, "//input[@id='inputBuscaRapida']"))
             )
             campo_busca.clear()
             campo_busca.send_keys(produto)
 
-            btn_pesquisa = WebDriverWait(self.driver, 10).until(
+            btn_pesquisa = WebDriverWait(self.driver, 15).until(
                 EC.element_to_be_clickable((By.XPATH, "//button[@class='btn btn-search']"))
             )
             btn_pesquisa.click()
 
-            titulo = WebDriverWait(self.driver, 10).until(
+            titulo = WebDriverWait(self.driver, 15).until(
                 EC.visibility_of_element_located((By.XPATH, "//p[contains(@class, 'text-success description')]"))
             ).text
 
-            valor = WebDriverWait(self.driver, 10).until(
+            valor = WebDriverWait(self.driver, 15).until(
                 EC.visibility_of_element_located((By.XPATH, "//div[contains(@class, 'info-price ng-star-inserted')]"))
             ).text
 
-            link = WebDriverWait(self.driver, 10).until(
+            link = WebDriverWait(self.driver, 15).until(
                 EC.presence_of_element_located((By.XPATH, "//a[@class='ghost-link clearfix']"))
             ).get_attribute("href")
 
@@ -95,6 +95,7 @@ class SitePerim():
                 'link': link
             }
 
+            logger.info(dados_retorno)
             return dados_retorno
 
         except Exception as error:

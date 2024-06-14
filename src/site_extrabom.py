@@ -41,9 +41,8 @@ class SiteExtrabom():
         """
         try:
             self.driver.get(self.pagina_inicial)
-            btn_fechar_anuncio = WebDriverWait(self.driver, 10).until(
-                EC.element_to_be_clickable((By.XPATH, "//div[contains(@class,'lightbox-load-content')]//a[contains(@class, 'button')]"))
-            )
+            btn_fechar_anuncio = WebDriverWait(self.driver, 5).until(
+                EC.element_to_be_clickable((By.XPATH, "//div[contains(@class,'lightbox-load-content')]//a[contains(@class, 'button')]")))
             btn_fechar_anuncio.click()
             logger.info('Anúncio fechado!')
         
@@ -78,26 +77,21 @@ class SiteExtrabom():
         try:
             
             campo_busca = WebDriverWait(self.driver, 10).until(
-                EC.element_to_be_clickable((By.XPATH, "//input[@class='search-input']"))
-            )
+                EC.element_to_be_clickable((By.XPATH, "//input[@class='search-input']")))
             campo_busca.send_keys(produto)
 
             btn_pesquisa = WebDriverWait(self.driver, 10).until(
-                EC.element_to_be_clickable((By.XPATH, "//div[@id='header']//input[contains(@class, 'icon-search')]"))
-            )
+                EC.element_to_be_clickable((By.XPATH, "//div[@id='header']//input[contains(@class, 'icon-search')]")))
             btn_pesquisa.click()
 
             titulo = WebDriverWait(self.driver, 10).until(
-                EC.visibility_of_element_located((By.XPATH, "//div[@class='name-produto']"))
-            ).text
+                EC.visibility_of_element_located((By.XPATH, "//div[@class='name-produto']"))).text
 
             valor = WebDriverWait(self.driver, 10).until(
-                EC.visibility_of_element_located((By.XPATH, "//strong[@class='item-por__val']"))
-            ).text
+                EC.visibility_of_element_located((By.XPATH, "//strong[@class='item-por__val']"))).text
 
             link = WebDriverWait(self.driver, 10).until(
-                EC.visibility_of_element_located((By.XPATH, "//a[@class='carousel__box__dados']"))
-            ).get_attribute("href")
+                EC.visibility_of_element_located((By.XPATH, "//a[@class='carousel__box__dados']"))).get_attribute("href")
 
             dados_retorno = {
                 'mercado': self.nome_mercado,
@@ -107,6 +101,7 @@ class SiteExtrabom():
                 'link': link
             }
 
+            logger.info(dados_retorno)
             return dados_retorno
 
         except Exception as error:

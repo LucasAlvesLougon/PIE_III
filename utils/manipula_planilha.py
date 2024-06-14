@@ -1,7 +1,5 @@
 import os
-from openpyxl import Workbook, load_workbook
-from openpyxl.worksheet.worksheet import Worksheet
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+import pandas as pd
 from loguru import logger
 
 class ManipulaPlanilhas:
@@ -15,10 +13,6 @@ class ManipulaPlanilhas:
         """
         self.arquivo_xlsx = arquivo_xlsx
 
-        if os.path.exists(arquivo_xlsx):
-            self.wb = load_workbook(filename=arquivo_xlsx)
-        else:
-            self.wb = Workbook()
 
     def preenche_planilha(self, planilha: str , dados: dict) -> None:
         """
@@ -36,48 +30,15 @@ class ManipulaPlanilhas:
                 }
         """
 
-        if planilha in self.wb.sheetnames:
-            ws = self.wb[planilha]
-        else:
-            ws = self.wb.create_sheet(title=planilha, index=0)
-        
-        i_coluna = 1
+        df = pd.DataFrame([dados])
 
-        for coluna, valores in dados.items():
-            # Define o cabeçalho (linha 1) da coluna com o seu respectivo valor
-            celula_coluna = ws.cell(row=1, column=i_coluna, value=coluna)
+        # Nome do arquivo Excel de saída
+        nome_arquivo = self.arquivo_xlsx
 
-            # Aplica estilos ao cabeçalho
-            celula_coluna.font = Font(name='Arial', size=12, bold=True, color='FFFFFF')
-            celula_coluna.fill = PatternFill(start_color="2F75B5", end_color="2F75B5", fill_type="solid")
-            celula_coluna.alignment = Alignment(horizontal='center')
-            celula_coluna.border = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
+        # Escrever o DataFrame no arquivo Excel
+        df.to_excel(nome_arquivo, index=False)
 
-            # Indice da linha inicial em que os dados serão preenchidos na planilha
-            i_linha = 2
-
-            # Itera sobre os dados referentes à coluna atual
-            for dado in valores:
-                # Preenche o campo referente à coluna e linha atual com o seu respectivo dado
-                celula_dado = ws.cell(row=i_linha, column=i_coluna, value=dado)
-
-                # Aplica estilos diretamente à célula de dado
-                celula_dado.font = Font(name='Arial', size=11, bold=False)
-                celula_dado.alignment = Alignment(horizontal='left')
-                celula_dado.border = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
-
-
-                # Incrementa 1 ao índice da linha para a próxima iteração
-                i_linha += 1
-
-            # Incrementa 1 ao índice da coluna para a próxima iteração
-            i_coluna += 1
-
-        # Cabeçalho fixo
-        ws.freeze_panes = 'A2'
-
-        # ---- SALVA A PLANILHA ----
-        self.wb.save(filename=self.arquivo_xlsx)
+        print(f'Dados salvos em {nome_arquivo} com sucesso!')
 
     def obter_index_coluna(self, planilha: str, nome_coluna: str) -> int:
         """
@@ -104,97 +65,18 @@ class ManipulaPlanilhas:
                 if celula.value == nome_coluna:
 
                     # Retorna o indice da coluna
-                    return cell.column
+                    return celula.column
         return None
-
-    def preenche_coluna(self, planilha:str, coluna_destino, coluna_referencia, dados: dict) -> None:
-        """
-        Preenche uma coluna com informações usando como base valores presentes em uma coluna de 
-        referencia
-
-        Args:
-            planilha (str): O nome da planilha onde os dados serão adicionados.
-            coluna_destino (str): O nome da coluna em que os dados deverão ser inseridos.
-            coluna_refenrecia (str): O nome da coluna que deverá ser utilizada como referência.
-            dados (dict): Um dicionário contendo os dados a serem adicionados à planilha.
-                Exemplo:
-                {
-                    'valor presente na coluna referencia': 'valor a ser inserido',
-                    'valor presente na coluna referencia': 'valor a ser inserido',
-                }
-        """
-
-        # Define a planilha
-        ws = self.wb[planilha]
-
-        # Obtém índice das colunas de referência
-        coluna_referencia_index = self.obter_index_coluna(
-            planilha = planilha, 
-            nome_coluna = coluna_referencia
-        )
-
-        # Obtém índice das colunas de referência
-        coluna_destino_index = self.obter_index_coluna(
-            planilha = planilha,
-            nome_coluna = coluna_destino
-        )
-
-        # Itera sobre as linhas de dados da planilha
-        for linha in range(2, ws.max_row + 1):
-
-            # Define o valor da linha atual na coluna referência
-            valor_referencia = ws.cell(row=linha, column=coluna_referencia_index).value
-
-            # Verifica se o valor referência está presente em uma das chaves do dict de dados
-            if valor_referencia in dados.keys():
-
-                # Define o valor que será inserido
-                valor_inserir = dados[valor_referencia]
-
-                # Insere o valor na planilha
-                celula = ws.cell(
-                    row=linha,
-                    column=coluna_destino_index,
-                    value=valor_inserir
-                )
-
-                # Aplica estilos diretamente à célula
-                celula.font = Font(
-                    name='Arial',
-                    size=11,
-                    bold=False
-                )
-
-                celula.alignment = Alignment(
-                    horizontal='left'
-                )
-                
-                celula.border = Border(
-                    left=Side(style='thin'),
-                    right=Side(style='thin'),
-                    top=Side(style='thin'), 
-                    bottom=Side(style='thin')
-                )
-
-        # Salva as alterações realizadas
-        self.wb.save(filename=self.arquivo_xlsx)
-
 
 
 if __name__ == '__main__':
 
     # ---- CAMINHOS ----
     DIRETORIO_PLANILHA = r'C:\Projetos Pessoais\web-scraping-mercado\assets\planilhas'
-    PLANILHA_1 = os.path.join(DIRETORIO_PLANILHA, '1.xlsx')
+    PLANILHA_1 = os.path.join(DIRETORIO_PLANILHA, 're.xlsx')
 
     # ---- DADOS DE ENTRADA ----
-    dados = {
-        'Nome': ['João', 'Maria', 'Carlos', 'Ana'],
-        'Idade': [25, 30, 22, 28],
-        'Cidade': ['São Paulo', 'Rio de Janeiro', 'Belo Horizonte', 'Porto Alegre'],
-        'Salário': [50000, 60000, 45000, 55000],
-        'Retorno' : []
-    }
+    dados = {'nome': 'Arroz', 'titulo': 'Arroz Arbório Granjeiro 1kg', 'valor': 'R$ 16,98 un.', 'mercado': 'Perim', 'link': 'https://www.perim.com.br/produtos/detalhe/8331/arroz-arborio-granjeiro-1kg'}
 
     manipula_planilhas = ManipulaPlanilhas(arquivo_xlsx=PLANILHA_1)
 
